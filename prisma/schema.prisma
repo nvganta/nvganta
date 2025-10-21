@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String?
+  password  String?  // bcrypt hash
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug      String   @unique
+  text      String
+  tags      String[]
+  media     String[]
+  linkUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  published Boolean  @default(true)
+}
+
+model Article {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug        String   @unique
+  title       String
+  summary     String?
+  body        String   // MDX serialized
+  tags        String[]
+  heroImage   String?
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  published   Boolean  @default(false)
+}
+
+model Project {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug        String   @unique
+  name        String
+  status      String   // active | paused | completed
+  description String
+  tech        String[]
+  repoUrl     String?
+  demoUrl     String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model Hack {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug        String   @unique
+  event       String
+  year        Int
+  projectName String
+  role        String
+  description String
+  tech        String[]
+  result      String?
+  repoUrl     String?
+  demoUrl     String?
+  images      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EmbedChunk {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  refId     String   // id of the referenced doc
+  refType   String   // post | article | project | hack
+  chunk     String
+  embedding Float[]
+  updatedAt DateTime @updatedAt
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  ts        DateTime @default(now())
+  route     String
+  sessionId String
+  referrer  String?
+  ua        String?
+  type      String   // view | click | chat
+  meta      Json?
+}
+
+model ChatSession {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  startedAt   DateTime @default(now())
+  routeContext String?
+  messages    Json     // array of messages
+  model       String?
+  tokenUsage  Json?
+}
+
