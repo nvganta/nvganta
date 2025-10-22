@@ -10,6 +10,7 @@ type Hack = {
   description: string
   tech: string[]
   result?: string | null
+  durationHours?: number | null
   repoUrl?: string | null
   demoUrl?: string | null
 }
@@ -22,6 +23,7 @@ export default function EditHackForm({ hack }: { hack: Hack }) {
   const [description, setDescription] = useState(hack.description)
   const [tech, setTech] = useState(hack.tech.join(", "))
   const [result, setResult] = useState(hack.result || "")
+  const [durationHours, setDurationHours] = useState<number | "">(hack.durationHours || "")
   const [repoUrl, setRepoUrl] = useState(hack.repoUrl || "")
   const [demoUrl, setDemoUrl] = useState(hack.demoUrl || "")
   const [saving, setSaving] = useState(false)
@@ -34,7 +36,7 @@ export default function EditHackForm({ hack }: { hack: Hack }) {
     const res = await fetch(`/api/hacks/${hack.id}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ event, year: Number(year), projectName, role, description, tech: tech? tech.split(",").map(t=>t.trim()).filter(Boolean): [], result: result || undefined, repoUrl: repoUrl || undefined, demoUrl: demoUrl || undefined })
+      body: JSON.stringify({ event, year: Number(year), projectName, role, description, tech: tech? tech.split(",").map(t=>t.trim()).filter(Boolean): [], result: result || undefined, durationHours: durationHours ? Number(durationHours) : undefined, repoUrl: repoUrl || undefined, demoUrl: demoUrl || undefined })
     })
     setSaving(false)
     if (!res.ok) setError(await res.text())
@@ -78,11 +80,17 @@ export default function EditHackForm({ hack }: { hack: Hack }) {
         <label className="block text-sm">Tech</label>
         <input value={tech} onChange={(e)=>setTech(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" />
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="block text-sm">Result</label>
-          <input value={result} onChange={(e)=>setResult(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" />
+          <input value={result} onChange={(e)=>setResult(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" placeholder="e.g., Winner, Runner Up" />
         </div>
+        <div>
+          <label className="block text-sm">Duration (hours)</label>
+          <input type="number" value={durationHours} onChange={(e)=>setDurationHours(e.target.value as any)} className="mt-1 w-full rounded-md border bg-transparent p-2" placeholder="e.g., 24, 48, 72" />
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="block text-sm">Repo URL</label>
           <input value={repoUrl} onChange={(e)=>setRepoUrl(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" />

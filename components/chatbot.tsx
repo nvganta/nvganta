@@ -79,20 +79,20 @@ export function ChatBot() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 px-5 py-3 bg-background/80 backdrop-blur-md border border-border/50 text-foreground rounded-full shadow-lg hover:bg-background/90 transition-all hover:scale-105"
+        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 px-5 py-3 bg-background/30 backdrop-blur-xl border border-white/20 text-foreground rounded-full shadow-xl hover:bg-background/40 transition-all hover:scale-105"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
         </svg>
-        <span className="font-medium">Talk to Agent</span>
+        <span className="font-medium">Digital Naveen</span>
       </button>
     )
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] flex flex-col bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
+    <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] flex flex-col bg-background/20 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-primary">
@@ -123,10 +123,10 @@ export function ChatBot() {
             className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
+              className={`max-w-[80%] rounded-2xl px-4 py-2.5 backdrop-blur-xl border ${
                 message.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground"
+                  ? "bg-primary/80 text-primary-foreground border-primary/30"
+                  : "bg-background/40 text-foreground border-white/20"
               }`}
             >
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
@@ -138,7 +138,7 @@ export function ChatBot() {
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-muted rounded-2xl px-4 py-2.5">
+            <div className="bg-background/40 backdrop-blur-xl border border-white/20 rounded-2xl px-4 py-2.5">
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                 <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -151,20 +151,20 @@ export function ChatBot() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-border">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-white/10 bg-background/10 backdrop-blur-xl">
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2.5 bg-muted border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="flex-1 px-4 py-2.5 bg-background/40 backdrop-blur-xl border border-white/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="px-4 py-2.5 bg-primary/80 backdrop-blur-xl text-primary-foreground border border-primary/30 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />

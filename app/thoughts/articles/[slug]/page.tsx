@@ -1,21 +1,28 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { prisma } from "@/lib/prisma"
 
 type Props = { params: { slug: string } }
 
-export default function ArticlePage({ params }: Props) {
+function estimateReadTime(content: string) {
+  const wordsPerMinute = 200
+  const words = content.split(/\s+/).length
+  const minutes = Math.ceil(words / wordsPerMinute)
+  return `${minutes} min read`
+}
+
+export default async function ArticlePage({ params }: Props) {
   const { slug } = params
   if (!slug) return notFound()
 
-  // Mock data for demo purposes
-  const article = {
-    title: slug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
-    summary: "A comprehensive guide to modern web development practices and patterns",
-    author: "Naveen Ganta",
-    date: "Jan 15, 2024",
-    readTime: "8 min read",
-    tags: ["nextjs", "react", "webdev"],
-  }
+  const article = await prisma.article.findUnique({
+    where: { slug },
+  })
+
+  if (!article || !article.published) return notFound()
+
+  const readTime = estimateReadTime(article.body)
+  const date = article.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
   return (
     <div className="space-y-8">
@@ -47,8 +54,8 @@ export default function ArticlePage({ params }: Props) {
               <span className="text-sm font-semibold">NG</span>
             </div>
             <div>
-              <div className="font-medium">{article.author}</div>
-              <div className="text-muted-foreground text-xs">{article.date}</div>
+              <div className="font-medium">Naveen Ganta</div>
+              <div className="text-muted-foreground text-xs">{date}</div>
             </div>
           </div>
           <span className="text-muted-foreground">•</span>
@@ -56,84 +63,46 @@ export default function ArticlePage({ params }: Props) {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
-            <span>{article.readTime}</span>
+            <span>{readTime}</span>
           </div>
-          <span className="text-muted-foreground">•</span>
-          <div className="flex items-center gap-2">
-            {article.tags.map((tag) => (
-              <span key={tag} className="px-2.5 py-0.5 rounded-md text-xs bg-primary/10 text-primary">
-                {tag}
-              </span>
-            ))}
-          </div>
+          {article.tags.length > 0 && (
+            <>
+              <span className="text-muted-foreground">•</span>
+              <div className="flex items-center gap-2">
+                {article.tags.map((tag) => (
+                  <span key={tag} className="px-2.5 py-0.5 rounded-md text-xs bg-primary/10 text-primary">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </header>
 
       {/* Article Content */}
       <article className="prose prose-lg dark:prose-invert max-w-none">
-        <p className="lead">
-          This is a placeholder article. In production, this would render MDX content from the database
-          with full support for code blocks, images from Cloudinary, custom components, and more.
-        </p>
-
-        <h2>Introduction</h2>
-        <p>
-          Modern web development has evolved significantly over the past few years. With the introduction
-          of frameworks like Next.js and tools like TypeScript, building robust, performant web applications
-          has become more accessible than ever.
-        </p>
-
-        <h2>Key Concepts</h2>
-        <p>
-          Let's explore some fundamental concepts that every modern web developer should understand:
-        </p>
-
-        <ul>
-          <li>Server-side rendering and static site generation</li>
-          <li>Component-based architecture with React</li>
-          <li>Type safety with TypeScript</li>
-          <li>API routes and backend integration</li>
-          <li>Performance optimization techniques</li>
-        </ul>
-
-        <h3>Code Example</h3>
-        <p>
-          Here's a simple example of a Next.js component (in production, this would be syntax-highlighted):
-        </p>
-
-        <pre><code>{`export default function Example() {
-  return (
-    <div className="container">
-      <h1>Hello World</h1>
-      <p>This is a Next.js component</p>
-    </div>
-  )
-}`}</code></pre>
-
-        <h2>Best Practices</h2>
-        <p>
-          Following industry best practices ensures your codebase remains maintainable and scalable.
-          Some key principles include separation of concerns, DRY (Don't Repeat Yourself), and writing
-          testable code.
-        </p>
-
-        <blockquote>
-          <p>
-            "The best code is code that is easy to understand, maintain, and extend."
-          </p>
-        </blockquote>
-
-        <h2>Conclusion</h2>
-        <p>
-          Building modern web applications requires a solid understanding of both fundamental concepts
-          and cutting-edge tools. By leveraging frameworks like Next.js and following best practices,
-          you can create applications that are fast, scalable, and delightful to use.
-        </p>
-
-        <p className="text-muted-foreground italic">
-          Note: This is placeholder content. Real articles will be fetched from the database and
-          rendered using MDX with full formatting, code highlighting, and embedded media.
-        </p>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: article.body
+              // Convert markdown to basic HTML
+              .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+              .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+              .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+              .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+              .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2" />')
+              .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
+              .replace(/\n\n/gim, '</p><p>')
+              .replace(/^(?!<[h|p|u|o|i])/gim, '<p>')
+              .replace(/(?<![>])$/gim, '</p>')
+              .replace(/<p><\/p>/gim, '')
+              .replace(/<p>(<h[1-6]>)/gim, '$1')
+              .replace(/(<\/h[1-6]>)<\/p>/gim, '$1')
+              .replace(/<p>(<img)/gim, '$1')
+              .replace(/(\/?>)<\/p>/gim, '$1'),
+          }}
+        />
       </article>
 
       {/* Article Footer */}
@@ -160,25 +129,17 @@ export default function ArticlePage({ params }: Props) {
           </div>
         </div>
 
-        {/* Related Articles */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">More articles</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[1, 2].map((i) => (
-              <Link
-                key={i}
-                href={`/thoughts/articles/related-article-${i}`}
-                className="group p-4 rounded-lg border border-border hover:border-primary/50 transition-all hover:shadow-md"
-              >
-                <h4 className="font-semibold mb-1 group-hover:text-primary transition-colors">
-                  Related Article {i}
-                </h4>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  Another interesting article about web development and modern practices.
-                </p>
-              </Link>
-            ))}
-          </div>
+        {/* Back to Articles */}
+        <div className="text-center">
+          <Link
+            href="/thoughts/articles"
+            className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+          >
+            View all articles
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
         </div>
       </footer>
     </div>

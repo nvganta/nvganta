@@ -18,15 +18,26 @@ model User {
 }
 
 model Post {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  slug       String        @unique
+  text       String
+  tags       String[]
+  media      String[]
+  linkUrl    String?
+  likes      Int           @default(0)
+  comments   PostComment[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  published  Boolean       @default(true)
+}
+
+model PostComment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  slug      String   @unique
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  name      String?  // null for anonymous
   text      String
-  tags      String[]
-  media     String[]
-  linkUrl   String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  published Boolean  @default(true)
 }
 
 model Article {
@@ -41,6 +52,7 @@ model Article {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   published   Boolean  @default(false)
+  featured    Boolean  @default(false)
 }
 
 model Project {
@@ -66,6 +78,7 @@ model Hack {
   description String
   tech        String[]
   result      String?
+  durationHours Int?   // Duration in hours (e.g., 24, 48, 72)
   repoUrl     String?
   demoUrl     String?
   images      String[]

@@ -21,6 +21,7 @@ export const ArticleCreateSchema = z.object({
   tags: z.array(z.string()).optional().default([]),
   heroImage: z.string().url().optional(),
   published: z.boolean().optional().default(false),
+  featured: z.boolean().optional().default(false),
   publishedAt: z.string().datetime().optional(),
 })
 
@@ -47,6 +48,7 @@ export const HackCreateSchema = z.object({
   description: z.string().min(1),
   tech: z.array(z.string()).optional().default([]),
   result: z.string().optional(),
+  durationHours: z.number().int().positive().optional(),
   repoUrl: z.string().url().optional(),
   demoUrl: z.string().url().optional(),
   images: z.array(z.string()).optional().default([]),

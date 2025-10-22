@@ -9,6 +9,7 @@ export default function NewHackForm() {
   const [description, setDescription] = useState("")
   const [tech, setTech] = useState("")
   const [result, setResult] = useState("")
+  const [durationHours, setDurationHours] = useState<number | "">("")
   const [repoUrl, setRepoUrl] = useState("")
   const [demoUrl, setDemoUrl] = useState("")
   const [loading, setLoading] = useState(false)
@@ -21,7 +22,7 @@ export default function NewHackForm() {
     const res = await fetch("/api/hacks", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ event, year: Number(year), projectName, role, description, tech: tech? tech.split(",").map(t=>t.trim()).filter(Boolean): [], result: result || undefined, repoUrl: repoUrl || undefined, demoUrl: demoUrl || undefined })
+      body: JSON.stringify({ event, year: Number(year), projectName, role, description, tech: tech? tech.split(",").map(t=>t.trim()).filter(Boolean): [], result: result || undefined, durationHours: durationHours ? Number(durationHours) : undefined, repoUrl: repoUrl || undefined, demoUrl: demoUrl || undefined })
     })
     setLoading(false)
     if (!res.ok) setError(await res.text())
@@ -59,11 +60,17 @@ export default function NewHackForm() {
         <label className="block text-sm">Tech (comma separated)</label>
         <input value={tech} onChange={(e)=>setTech(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" />
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="block text-sm">Result</label>
-          <input value={result} onChange={(e)=>setResult(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" />
+          <input value={result} onChange={(e)=>setResult(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" placeholder="e.g., Winner, Runner Up" />
         </div>
+        <div>
+          <label className="block text-sm">Duration (hours)</label>
+          <input type="number" value={durationHours} onChange={(e)=>setDurationHours(e.target.value as any)} className="mt-1 w-full rounded-md border bg-transparent p-2" placeholder="e.g., 24, 48, 72" />
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="block text-sm">Repo URL</label>
           <input value={repoUrl} onChange={(e)=>setRepoUrl(e.target.value)} className="mt-1 w-full rounded-md border bg-transparent p-2" />
