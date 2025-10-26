@@ -19,6 +19,7 @@ export function ChatBot() {
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [bottomOffset, setBottomOffset] = useState(24) // 6 * 4 = 24px (bottom-6 in Tailwind)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -28,6 +29,35 @@ export function ChatBot() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const footer = document.querySelector('footer')
+      if (!footer) return
+
+      const footerRect = footer.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+
+      // Calculate how much of the footer is visible
+      const footerTop = footerRect.top
+      const buttonHeight = 60 // Approximate button height
+      const minOffset = 24 // minimum offset (1.5rem)
+
+      if (footerTop < windowHeight) {
+        // Footer is visible, adjust button position
+        const overlap = windowHeight - footerTop
+        setBottomOffset(Math.max(minOffset, overlap + minOffset))
+      } else {
+        // Footer not visible, use default position
+        setBottomOffset(minOffset)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    handleScroll() // Initial check
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,7 +109,8 @@ export function ChatBot() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 px-5 py-3 bg-background/30 backdrop-blur-xl border border-white/20 text-foreground rounded-full shadow-xl hover:bg-background/40 transition-all hover:scale-105"
+        className="fixed right-6 z-40 inline-flex items-center gap-2 px-5 py-3 bg-background/30 backdrop-blur-xl border border-white/20 text-foreground rounded-full shadow-xl hover:bg-background/40 transition-all hover:scale-105"
+        style={{ bottom: `${bottomOffset}px` }}
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
@@ -90,7 +121,10 @@ export function ChatBot() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] flex flex-col bg-background/20 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
+    <div
+      className="fixed right-6 z-40 w-96 h-[600px] flex flex-col bg-background/20 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
+      style={{ bottom: `${bottomOffset}px` }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur-xl">
         <div className="flex items-center gap-3">
